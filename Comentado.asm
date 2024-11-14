@@ -41,9 +41,9 @@ LIMPA_TELA MACRO
 
     ;Move Cursor
                MOV AH, 02H
-               MOV BH, 0        ;Coluna
+               MOV BH, 0        
                MOV DH, 5        ;Linha
-               MOV DL, 0
+               MOV DL, 0        ;Coluna
                INT 10H
 ENDM
 IMPRIME_ESPACOS MACRO QUANTIDADE

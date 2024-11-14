@@ -1,56 +1,59 @@
 TITLE Batalha Naval - Projeto Final
 .MODEL SMALL
 .stack 0100h
-; Macro para limpar a tela
-limpar_tela macro
-    MOV AH, 06h       
-    MOV AL, 0       
-    MOV BH, 07h      
-    MOV CX, 0        
-    MOV DX, 184Fh    
-    INT 10h           
-endm
-IMPLOGO macro PART1,PART2,PART3,PART4,PART5,MSGPRIN
-                LEA DX, PART1
-                MOV AH,09
-                INT 21H
-
-                LEA DX, PART2
-                MOV AH,09
-                INT 21H
-
-                LEA DX, PART3
-                MOV AH,09
-                INT 21H
-
-                LEA DX, PART4
-                MOV AH,09
-                INT 21h
-
-                LEA DX, PART5
-                MOV AH,09
-                INT 21H
-
-                LEA DX, MSGPRIN
-                MOV AH,09
-                INT 21H
+IMPMENSAG MACRO MGSDESJ
+              LEA DX, MGSDESJ
+              MOV AH,09
+              INT 21H
 ENDM
 
-Pula_linha macro
-                   PUSH AX
-                   PUSH DX
-                   MOV  AH,02
-                   MOV  DL,10
-                   INT  21H
-                   POP  DX
-                   POP  AX
-endm
-
-Controle_Programa macro CONTROLE
-                          LEA DX, CONTROLE
-                          MOV AH,09
-                          INT 21H
+PULA_LINHA MACRO
+               PUSH AX
+               PUSH DX
+               MOV  AH, 02
+               MOV  DL, 10
+               INT  21H
+               POP  DX
+               POP  AX
 ENDM
+
+;Remover em Projeto Final;
+Controle_Programa MACRO CONTROLE
+                      LEA DX, CONTROLE
+                      MOV AH,09
+                      INT 21H
+ENDM
+
+INFORMATRIZ MACRO COLUNAINICIAL, LINHAINICIAL,LINHAFINAL
+                MOV BX,COLUNAINICIAL
+                MOV SI,LINHAINICIAL
+                MOV DI,LINHAFINAL
+ENDM
+LIMPA_TELA MACRO
+    ;Limpa a Tela
+               MOV AH, 06H
+               MOV AL, 0
+               MOV BH, 07H
+               MOV CX, 0
+               MOV DX, 184FH
+               INT 10H
+
+    ;Move Cursor
+               MOV AH, 02H
+               MOV BH, 0        ;Coluna
+               MOV DH, 5        ;Linha
+               MOV DL, 0
+               INT 10H
+ENDM
+SALVAMJOGO MACRO
+               PUSH BX
+               PUSH SI
+               PUSH DI
+ENDM
+VOLTAVALOR MACRO
+               POP BX
+               POP SI
+               POP DI
 
 ImprimeQUA macro VALORCOL,INCIALSI,REGVALOR,MATRIZIMP
                      Local      MudaLinha
@@ -80,30 +83,6 @@ ImprimeQUA macro VALORCOL,INCIALSI,REGVALOR,MATRIZIMP
                      JMP        MudaLinha
         Retornaimp:  
 endm
-ZeraQua macro LINHAI,LINHAMAX,MATRIZZERA
-                    Local PROXLinha
-                    Local ZERALINHA
-                    Local RetornaZera
-
-                    XOR   BX,BX
-                    MOV   SI,LINHAI
-                    MOV   CX,10
-                    JMP   ZERALINHA
-        PROXLinha:  
-                    XOR   BX,BX                        ; zera o índice da coluna
-                    ADD   SI,40                        ; Muda a linha
-                    MOV   CX,10                        ;Volta o valor de cx para o loop
-                    CMP   SI,LINHAMAX
-                    JG    RetornaZera
-                 
-        ZERALINHA:  
-                    MOV   MATRIZZERA [SI][BX],0        ; coloca o elemento MATRIZ4X4[0,0] em AL
-                    ADD   BX,2
-                    LOOP  ZERALINHA
-                    JMP   PROXLinha
-
-        RetornaZera:
-ENDM
 .DATA
         MATRIZ       DW 1,1,1,1,1,1,1,1,1,1     ,     2,2,2,2,2,2,2,2,2,2
                      DW 1,1,1,1,1,1,1,1,1,1     ,     2,2,2,2,2,2,2,2,2,2
@@ -155,9 +134,14 @@ MAIN PROC
 MAIN ENDP
 INICIAR PROC
 
-                     limpar_tela
+                LIMPA_TELA
+                  IMPMENSAG         LOGO1
+                  IMPMENSAG         LOGO2
+                  IMPMENSAG         LOGO3
+                  IMPMENSAG         LOGO4
+                  IMPMENSAG         LOGO5
+                  IMPMENSAG         ENTMSG1
 
-                      IMPLOGO           LOGO1, LOGO2, LOGO3, LOGO4, LOGO5, ENTMSG1
 
                       MOV               CX, 3
                       XOR               BX,BX
@@ -170,23 +154,9 @@ INICIAR PROC
                       CMP               AL, 0DH
                       JE                CompENT
                       MOV               DL,AL
-                      ADD               BL, DL
-                   
-                      
+                      ADD               BL, DL      
                       LOOP              LerEnt
-                      CMP               DL, 39H
-                      JBE               MENOR
-                      CMP               DL,41H
-                      JGE               MAIOR
-                      limpar_tela
-                      
-                      
-                     
-                      
-        MENOR:        
-                      ADD               DL, 30H
-        MAIOR:        
-                      ADD               DL, 9
+                      limpar_tela             
         CompENT:      
                       CMP               BL, 4
                       JB                PulaParaFim
@@ -211,27 +181,23 @@ INICIAR PROC
                       JMP               RetornaEnt
         QUAQ3:        
                       JMP               QUA3
-        QUAQ4:        
-                      JMP               QUA4
         QUA1:         
 
                       Controle_Programa MSGCONTROLE
-                      ImprimeQUA        0,0,360,MATRIZ
                       JMP               RetornaEnt
+        QUAQ4:        
+                      JMP               QUA4
         QUA2:         
 
                       Controle_Programa MSGCONTROLE1
-                      ImprimeQUA        20,0,360,MATRIZ
                       JMP               RetornaEnt
         QUA3:         
 
                       Controle_Programa MSGCONTROLE2
-                      ImprimeQUA        0,400,760,MATRIZ
                       JMP               RetornaEnt
         QUA4:         
 
                       Controle_Programa MSGCONTROLE3
-                      ImprimeQUA        20,400,760,MATRIZ
                       JMP               RetornaEnt
 
         RetornaEnt:   

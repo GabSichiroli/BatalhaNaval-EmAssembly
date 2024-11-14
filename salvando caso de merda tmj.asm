@@ -226,7 +226,7 @@ QUARDANTEJOGO PROC
                   INT         10H                             ; Reposiciona o cursor na linha DH e coluna fixa DL
 
     IMPRIMELINHA: 
-                  MOV         AX, MATRIZIMPRESSÃO[SI + BX]    ; Carrega o valor da matriz na posição atual
+                  MOV         AX, MATRIZIMPRESSÃO[SI][BX]    ; Carrega o valor da matriz na posição atual
                   OR          AL, 30H                         ; Converte para caractere ASCII
                   MOV         AH, 0Eh                         ; Função de escrita de caractere em modo texto (INT 10h)
                   INT         10H                             ; Escreve o caractere na tela
